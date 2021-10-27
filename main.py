@@ -18,7 +18,7 @@ api_hash=apihash)
 
 # Functions
 #----------
-
+import json
 def convert_bytes(num):
     for x in ['bytes', 'KB', 'MB', 'GB', 'TB']:
         if num < 1024.0:
@@ -45,8 +45,8 @@ def start(_, msg):
 @app.on_message()
 def fileinfo(client,msg):
   rep = msg.reply("Processing...", quote = 1)
-  msgS = str(msg).replace("True", "true").replace("False", "false")
-  msgD = eval(msgS)
+  msgS = str(msg)
+  msgD = json.loads(msgS)
   try:rep.edit(f"File Size: {convert_bytes(get_bytes(msgD))}")
   except: rep.edit("`ERROR: No file found in the message.`")
 
