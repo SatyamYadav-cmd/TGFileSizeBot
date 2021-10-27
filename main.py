@@ -18,17 +18,22 @@ api_hash=apihash)
 
 # Functions
 #----------
-import os
+
 def convert_bytes(num):
     for x in ['bytes', 'KB', 'MB', 'GB', 'TB']:
         if num < 1024.0:
             return "%3.1f %s" % (num, x)
         num /= 1024.0
 
-def file_size(file_path):
-    if os.path.isfile(file_path):
-        file_info = os.stat(file_path)
-        return convert_bytes(file_info.st_size)
+types = ["animation", "audio", "photo", "video", "document", "sticker"]
+
+def get_bytes(msg):
+  typ=None
+  for x in types:
+    if x in msg:
+      typ = x
+      break
+  return msg[typ]['file_size'] if typ else typ
 
 
 # Main
@@ -39,21 +44,11 @@ def start(_, msg):
 
 @app.on_message()
 def fileinfo(client,msg):
-  rep = msg.reply_text("`Uploading...\nPlease Wait, You\'ll be notified once the process is finished!`", quote = True)
-  try:
-    dl = msg.download()
-    if dl:
-      rep.edit(f"`Upload Successfull!\nProcessing...")
-      size = file_size(dl)
-      rep.delete()
-      msg.reply(f"File Size: {size}", quote = True)
-    else:
-      rep.delete()
-      msg.reply("`Some error occured :/`", quote = True)
-  except:
-    rep.delete()
-    msg.reply("`No file found in the message :/`", quote = True)
-
+  rep = msg.reply("Processing...", quote = 1)
+  msgS = str(msg).replace("True", "true").replace("False", "false")
+  msgD = eval(msgS)
+  try:rep.edit(f"File Size: {convert_bytes(get_bytes(msgD))}")
+  except: rep.edit("`ERROR: No file found in the message.`")
 
 
 
